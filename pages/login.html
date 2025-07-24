@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SmartFlow – Login</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <header>
+    <h1>🔐 SmartFlow Login</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="predict.html">Predict</a>
+      <a href="map.html">Map</a>
+      <a href="trends.html">Trends</a>
+      <a href="admin.html">Admin</a>
+      <a href="login.html">Login</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <form id="loginForm">
+      <label>Email:
+        <input type="email" id="email" required />
+      </label>
+      <label>Password:
+        <input type="password" id="password" required />
+      </label>
+      <button type="submit">🔓 Login</button>
+    </form>
+    <div id="loginStatus">Please enter your credentials.</div>
+  </main>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      // Simulated login logic (replace with Firebase or backend later)
+      if (email === "admin@smartflow.com" && password === "1234") {
+        document.getElementById("loginStatus").innerText = "✅ Login successful!";
+      } else {
+        document.getElementById("loginStatus").innerText = "❌ Invalid credentials.";
+      }
+    });
+  </script>
+</body>
+</html>

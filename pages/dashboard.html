@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SmartFlow – Dashboard</title>
+  <link rel="stylesheet" href="../styles.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .chart-container {
+      max-width: 800px;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    canvas { max-width: 100%; }
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00ffcc;
+      color: #000;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    .back-btn:hover { background-color: #00cc99; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📊 SmartFlow Dashboard</h1>
+    <nav>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="predict.html">Predict</a>
+      <a href="map.html">Map</a>
+      <a href="trends.html">Trends</a>
+      <a href="admin.html">Admin</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+  <main>
+    <section class="container">
+      <h2>Traffic Overview</h2>
+      <p>Live congestion stats across major areas.</p>
+    </section>
+    <div class="chart-container">
+      <h3>Congestion Levels by Area</h3>
+      <canvas id="barChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <h3>Congestion Distribution</h3>
+      <canvas id="pieChart"></canvas>
+    </div>
+  </main>
+  <a href="../index.html" class="back-btn">⬅ Home</a>
+  <script>
+    const API_BASE = "https://smartflow-api-ccyd.onrender.com";
+    const AREAS = [
+      "Garki", "Wuse", "Maitama", "Asokoro", "Utako",
+      "Jabi", "Gwarimpa", "Kubwa", "Lugbe"
+    ];
+    const labels = [...AREAS];
+    const congestionValues = [];
+
+    Promise.all(
+      AREAS.map(area =>
+        fetch(`${API_BASE}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            location: area,
+            time: new Date().toTimeString().slice(0,5),
+            date: new Date().toISOString().slice(0,10),
+            weather: "Clear"
+          })
+        })
+        .then(res => res.json())
+        .then(data => data.congestion || 0)
+        .catch(() => 0)
+      )
+    ).then(values => {
+      congestionValues.push(...values);
+      new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Congestion Level (%)",
+            data: congestionValues,
+            backgroundColor: "#00ffcc"
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true, max: 100 } }
+        }
+      });
+      new Chart(document.getElementById("pieChart"), {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [{
+            data: congestionValues,
+            backgroundColor: [
+              "#00ffcc", "#00cc99", "#009999", "#3399ff", "#66ccff",
+              "#ffcc00", "#ff9966", "#ff6666", "#cc66ff"
+            ]
+          }]
+        },
+        options: { responsive: true }
+      });
+    });
+  </script>
+</body>
+</html>

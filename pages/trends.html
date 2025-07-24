@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SmartFlow – Trends</title>
+  <link rel="stylesheet" href="../styles.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: #fff;
+      color: #000;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    canvas { max-width: 100%; }
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00ffcc;
+      color: #000;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    .back-btn:hover { background-color: #00cc99; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📈 SmartFlow Trends</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="predict.html">Predict</a>
+      <a href="map.html">Map</a>
+      <a href="trends.html" class="active">Trends</a>
+      <a href="admin.html">Admin</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <h2>Congestion Trend – Wuse (Past 7 Days)</h2>
+      <canvas id="trendChart"></canvas>
+    </div>
+  </main>
+  <a href="../index.html" class="back-btn">⬅ Home</a>
+  <script>
+    const API_BASE = "https://smartflow-server-m4be.onrender.com";
+
+    const location = "Wuse";
+    const weather = "Clear";
+    const time = "08:00";
+
+    const labels = [];
+    const values = [];
+
+    // Build last 7 days labels
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      labels.push(d.toISOString().slice(0, 10));
+    }
+
+    // Fetch congestion for each date
+    Promise.all(
+      labels.map(date =>
+        fetch(`${API_BASE}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ location, date, time, weather })
+        })
+          .then(res => res.json())
+          .then(data => data.congestion || 0)
+          .catch(() => 0)
+      )
+    ).then(results => {
+      values.push(...results);
+
+      new Chart(document.getElementById("trendChart"), {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Congestion (%)",
+            data: values,
+            borderColor: "#00cc99",
+            backgroundColor: "rgba(0,204,153,0.2)",
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, max: 100 }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

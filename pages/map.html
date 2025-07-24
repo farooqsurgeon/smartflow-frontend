@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SmartFlow – Map</title>
+  <link rel="stylesheet" href="../styles.css"/>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+  />
+  <style>
+    #map { height: 600px; }
+
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00ffcc;
+      color: #000;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+
+    .back-btn:hover {
+      background-color: #00cc99;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🗺️ SmartFlow Map</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="predict.html">Predict</a>
+      <a href="map.html" class="active">Map</a>
+      <a href="trends.html">Trends</a>
+      <a href="admin.html">Admin</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Live Congestion by Area</h2>
+      <div id="map"></div>
+    </section>
+  </main>
+
+  <!-- ✅ Floating Home Button -->
+  <a href="../index.html" class="back-btn">⬅ Home</a>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    const API_BASE = "https://smartflow-server-m4be.onrender.com";
+
+    const AREAS = [
+      { name: "Garki",      lat: 9.05785, lng: 7.49207 },
+      { name: "Wuse",       lat: 9.08677, lng: 7.42207 },
+      { name: "Maitama",    lat: 9.06240, lng: 7.50420 },
+      { name: "Asokoro",    lat: 9.08170, lng: 7.46740 },
+      { name: "Utako",      lat: 9.02250, lng: 7.49930 },
+      { name: "Jabi",       lat: 9.07130, lng: 7.49860 },
+      { name: "Gwarimpa",   lat: 9.01000, lng: 7.35850 },
+      { name: "Kubwa",      lat: 9.13630, lng: 7.33450 },
+      { name: "Lugbe",      lat: 9.04180, lng: 7.40240 }
+    ];
+
+    // Initialize Leaflet map
+    const map = L.map("map").setView([9.05785, 7.49207], 11);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
+
+    // Add a marker for each area and fetch its congestion
+    AREAS.forEach(area => {
+      const marker = L.marker([area.lat, area.lng]).addTo(map);
+      marker.bindPopup(`${area.name}<br>Loading...`);
+
+      fetch(`${API_BASE}/predict`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          location: area.name,
+          time: new Date().toTimeString().slice(0,5),
+          date: new Date().toISOString().slice(0,10),
+          weather: "Clear"
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        marker.getPopup()
+          .setContent(`${area.name}<br>Congestion: ${data.congestion}`);
+      })
+      .catch(() => {
+        marker.getPopup()
+          .setContent(`${area.name}<br>Congestion: Unknown`);
+      });
+    });
+  </script>
+</body>
+</html>

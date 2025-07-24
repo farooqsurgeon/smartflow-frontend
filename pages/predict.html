@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SmartFlow – Predict</title>
+  <link rel="stylesheet" href="../styles.css"/>
+  <style>
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #fff;
+      color: #000;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #00cc99;
+    }
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00ffcc;
+      color: #000;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    .back-btn:hover { background-color: #00cc99; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🔮 SmartFlow Predictor</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="predict.html" class="active">Predict</a>
+      <a href="map.html">Map</a>
+      <a href="trends.html">Trends</a>
+      <a href="admin.html">Admin</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <h2>Predict Congestion</h2>
+      <form id="predictForm">
+        <label for="location">Location:</label>
+        <select id="location" required>
+          <option value="">Select Area</option>
+          <option value="Garki">Garki</option>
+          <option value="Wuse">Wuse</option>
+          <option value="Maitama">Maitama</option>
+          <option value="Asokoro">Asokoro</option>
+          <option value="Utako">Utako</option>
+          <option value="Jabi">Jabi</option>
+          <option value="Gwarimpa">Gwarimpa</option>
+          <option value="Kubwa">Kubwa</option>
+          <option value="Lugbe">Lugbe</option>
+        </select>
+        <label for="date">Date:</label>
+        <input type="date" id="date" required>
+        <label for="time">Time:</label>
+        <input type="time" id="time" required>
+        <label for="weather">Weather:</label>
+        <select id="weather" required>
+          <option value="Clear">Clear</option>
+          <option value="Rainy">Rainy</option>
+          <option value="Cloudy">Cloudy</option>
+          <option value="Sunny">Sunny</option>
+        </select>
+        <button type="submit">Predict</button>
+      </form>
+      <div class="result" id="result"></div>
+    </div>
+  </main>
+  <a href="../index.html" class="back-btn">⬅ Home</a>
+  <script>
+    const form = document.getElementById("predictForm");
+    const resultDiv = document.getElementById("result");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const location = document.getElementById("location").value;
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
+      const weather = document.getElementById("weather").value;
+
+      fetch("https://smartflow-server-m4be.onrender.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location, date, time, weather })
+      })
+      .then(res => res.json())
+      .then(data => {
+        resultDiv.textContent = `Predicted Congestion: ${data.congestion}`;
+      })
+      .catch(() => {
+        resultDiv.textContent = "Error fetching prediction.";
+      });
+    });
+  </script>
+</body>
+</html>

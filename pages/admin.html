@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>SmartFlow – Admin Panel</title>
+  <link rel="stylesheet" href="../styles.css"/>
+  <style>
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background-color: #fff;
+      color: #000;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .admin-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .admin-actions button {
+      background-color: #00ffcc;
+      color: #000;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .admin-actions button:hover { background-color: #00cc99; }
+    .response-box {
+      margin-top: 30px;
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      color: #333;
+      white-space: pre-wrap;
+    }
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00ffcc;
+      color: #000;
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 1000;
+    }
+    .back-btn:hover { background-color: #00cc99; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛠️ SmartFlow Admin Panel</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="predict.html">Predict</a>
+      <a href="map.html">Map</a>
+      <a href="trends.html">Trends</a>
+      <a href="admin.html" class="active">Admin</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <h2>System Controls</h2>
+      <p>Manage backend operations and monitor system health.</p>
+      <div class="admin-actions">
+        <button onclick="callAPI('/admin/logs','GET')">📄 View Logs</button>
+        <button onclick="callAPI('/admin/reset','POST')">🔄 Reset Data</button>
+        <button onclick="callAPI('/admin/users','GET')">👥 Manage Users</button>
+        <button onclick="callAPI('/admin/status','GET')">📡 System Status</button>
+      </div>
+      <div class="response-box" id="responseBox">Response will appear here...</div>
+    </div>
+  </main>
+  <a href="../index.html" class="back-btn">⬅ Home</a>
+  <script>
+    const API_BASE = "https://smartflow-api-ccyd.onrender.com";
+    const responseBox = document.getElementById("responseBox");
+
+    function callAPI(endpoint, method) {
+      responseBox.textContent = "Loading...";
+
+      const options = {
+        method,
+        headers: { "Content-Type": "application/json" }
+      };
+
+      if (method === "POST") {
+        options.body = JSON.stringify({});
+      }
+
+      fetch(API_BASE + endpoint, options)
+        .then(res => res.json())
+        .then(data => {
+          responseBox.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+          responseBox.textContent = "Error: " + err.message;
+        });
+    }
+  </script>
+</body>
+</html>
